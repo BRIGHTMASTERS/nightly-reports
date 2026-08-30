@@ -143,8 +143,8 @@ def build_telegram_summary(snap):
     msg.append("📁 <i>Full report committed to GitHub.</i>")
     return "\n".join(msg)
 
-def send_telegram(bot_token, chat_id, text):
-    """Send summary message via Telegram Bot API."""
+def send_telegram(bot_token, chat_id, text, topic_id=None):
+    """Send summary message via Telegram Bot API with optional forum topic."""
     if not bot_token or not chat_id:
         print("WARN: Telegram token or chat ID not set. Skipping Telegram notification.")
         return False
@@ -156,6 +156,8 @@ def send_telegram(bot_token, chat_id, text):
             "parse_mode": "HTML",
             "disable_web_page_preview": True
         }
+        if topic_id:
+            payload["message_thread_id"] = int(topic_id)
         res = requests.post(url, json=payload, timeout=15)
         res.raise_for_status()
         print("SUCCESS: Telegram message delivered.")
@@ -233,7 +235,8 @@ def main():
     commit_github_report(gh_token, gh_repo, gh_branch, gh_path, markdown_content)
     
     # 2. Send Telegram
-    send_telegram(bot_token, chat_id, telegram_text)
+    topic_id = os.environ.get("TELEGRAM_TOPIC_ID")
+    send_telegram(bot_token, chat_id, telegram_text, topic_id)
     
     print(f"--- Nightly Report Runner Finished ---")
 
