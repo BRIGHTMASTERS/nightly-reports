@@ -26,7 +26,7 @@ def fetch_snapshot(api_url):
         }
     try:
         # In case server uses self-signed cert on 8443
-        resp = requests.get(api_url, timeout=25, verify=False)
+        resp = requests.get(api_url, timeout=25, verify=False, auth=(os.environ.get("REPORT_API_USER", ""), os.environ.get("REPORT_API_PASS", "")))
         resp.raise_for_status()
         return resp.json()
     except Exception as exc:
